@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Extension;
-class Shipping extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension;
+class Shipping extends \Opencart\System\Engine\Controller {
 	private $error = [];
 
 	public function index() {
@@ -17,15 +17,15 @@ class Shipping extends \System\Engine\Controller {
 		$this->load->model('setting/extension');
 
 		if ($this->validate()) {
-			$this->model_setting_extension->install('shipping', $this->request->get['extension']);
+			$this->model_setting_extension->install('shipping', $this->request->get['extension'], $this->request->get['code']);
 
 			$this->load->model('user/user_group');
 
-			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/shipping/' . $this->request->get['extension']);
-			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/shipping/' . $this->request->get['extension']);
+			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/' . $this->request->get['extension'] . '/shipping/' . $this->request->get['code']);
+			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/' . $this->request->get['extension'] . '/shipping/' . $this->request->get['code']);
 
-			// Call install method if it exsits
-			$this->load->controller('extension/shipping/' . $this->request->get['extension'] . '/install');
+			// Call install method if it exists
+			$this->load->controller('extension/' . $this->request->get['extension'] . '/shipping/' . $this->request->get['code'] . '/install');
 
 			$this->session->data['success'] = $this->language->get('text_success');
 		}
@@ -39,10 +39,10 @@ class Shipping extends \System\Engine\Controller {
 		$this->load->model('setting/extension');
 
 		if ($this->validate()) {
-			$this->model_setting_extension->uninstall('shipping', $this->request->get['extension']);
+			$this->model_setting_extension->uninstall('shipping', $this->request->get['code']);
 
-			// Call uninstall method if it exsits
-			$this->load->controller('extension/shipping/' . $this->request->get['extension'] . '/uninstall');
+			// Call uninstall method if it exists
+			$this->load->controller('extension/' . $this->request->get['extension'] . '/shipping/' . $this->request->get['code'] . '/uninstall');
 
 			$this->session->data['success'] = $this->language->get('text_success');
 		}
@@ -65,37 +65,44 @@ class Shipping extends \System\Engine\Controller {
 			$data['success'] = '';
 		}
 
-		$this->load->model('setting/extension');
+		$available = [];
 
-		$extensions = $this->model_setting_extension->getInstalled('shipping');
-		
-		foreach ($extensions as $key => $value) {
-			if (!is_file(DIR_APPLICATION . 'controller/extension/shipping/' . $value . '.php') && !is_file(DIR_APPLICATION . 'controller/shipping/' . $value . '.php')) {
-				$this->model_setting_extension->uninstall('shipping', $value);
+		$results = $this->model_setting_extension->getPaths('%/admin/controller/shipping/%.php');
 
-				unset($extensions[$key]);
+		foreach ($results as $result) {
+			$available[] = basename($result['path'], '.php');
+		}
+
+		$installed = [];
+
+		$extensions = $this->model_setting_extension->getExtensionsByType('shipping');
+
+		foreach ($extensions as $extension) {
+			if (in_array($extension['code'], $available)) {
+				$installed[] = $extension['code'];
+			} else {
+				$this->model_setting_extension->uninstall('shipping', $extension['code']);
 			}
 		}
 
 		$data['extensions'] = [];
-		
-		// Compatibility code for old extension folders
-		$files = glob(DIR_APPLICATION . 'controller/extension/shipping/*.php');
 
-		if ($files) {
-			foreach ($files as $file) {
-				$extension = basename($file, '.php');
+		if ($results) {
+			foreach ($results as $result) {
+				$extension = substr($result['path'], 0, strpos($result['path'], '/'));
 
-				$this->load->language('extension/shipping/' . $extension, $extension);
+				$code = basename($result['path'], '.php');
+
+				$this->load->language('extension/' . $extension . '/shipping/' . $code, $code);
 
 				$data['extensions'][] = [
-					'name'       => $this->language->get($extension . '_heading_title'),
-					'status'     => $this->config->get('shipping_' . $extension . '_status') ? $this->language->get('text_enabled') : $this->language->get('text_disabled'),
-					'sort_order' => $this->config->get('shipping_' . $extension . '_sort_order'),
-					'install'    => $this->url->link('extension/shipping/install', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension),
-					'uninstall'  => $this->url->link('extension/shipping/uninstall', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension),
-					'installed'  => in_array($extension, $extensions),
-					'edit'       => $this->url->link('extension/shipping/' . $extension, 'user_token=' . $this->session->data['user_token'])
+					'name'       => $this->language->get($code . '_heading_title'),
+					'status'     => $this->config->get('shipping_' . $code . '_status') ? $this->language->get('text_enabled') : $this->language->get('text_disabled'),
+					'sort_order' => $this->config->get('shipping_' . $code . '_sort_order'),
+					'install'    => $this->url->link('extension/shipping/install', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension . '&code=' . $code),
+					'uninstall'  => $this->url->link('extension/shipping/uninstall', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension . '&code=' . $code),
+					'installed'  => in_array($code, $installed),
+					'edit'       => $this->url->link('extension/' . $extension . '/shipping/' . $code, 'user_token=' . $this->session->data['user_token'])
 				];
 			}
 		}

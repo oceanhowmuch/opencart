@@ -1,10 +1,10 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Dashboard;
-class Recent extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Dashboard;
+class Recent extends \Opencart\System\Engine\Controller {
 	private $error = [];
 
 	public function index() {
-		$this->load->language('extension/dashboard/recent');
+		$this->load->language('extension/opencart/dashboard/recent');
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
@@ -38,10 +38,10 @@ class Recent extends \System\Engine\Controller {
 
 		$data['breadcrumbs'][] = [
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('extension/dashboard/recent', 'user_token=' . $this->session->data['user_token'])
+			'href' => $this->url->link('extension/opencart/dashboard/recent', 'user_token=' . $this->session->data['user_token'])
 		];
 
-		$data['action'] = $this->url->link('extension/dashboard/recent', 'user_token=' . $this->session->data['user_token']);
+		$data['action'] = $this->url->link('extension/opencart/dashboard/recent', 'user_token=' . $this->session->data['user_token']);
 
 		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=dashboard');
 
@@ -73,11 +73,11 @@ class Recent extends \System\Engine\Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('extension/dashboard/recent_form', $data));
+		$this->response->setOutput($this->load->view('extension/opencart/dashboard/recent_form', $data));
 	}
 
 	protected function validate() {
-		if (!$this->user->hasPermission('modify', 'extension/dashboard/recent')) {
+		if (!$this->user->hasPermission('modify', 'extension/opencart/dashboard/recent')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
@@ -85,7 +85,7 @@ class Recent extends \System\Engine\Controller {
 	}
 	
 	public function dashboard() {
-		$this->load->language('extension/dashboard/recent');
+		$this->load->language('extension/opencart/dashboard/recent');
 
 		$data['user_token'] = $this->session->data['user_token'];
 
@@ -110,10 +110,10 @@ class Recent extends \System\Engine\Controller {
 				'status'     => $result['order_status'],
 				'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 				'total'      => $this->currency->format($result['total'], $result['currency_code'], $result['currency_value']),
-				'view'       => $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $result['order_id']),
+				'view'       => $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $result['order_id'])
 			];
 		}
 
-		return $this->load->view('extension/dashboard/recent_info', $data);
+		return $this->load->view('extension/opencart/dashboard/recent_info', $data);
 	}
 }

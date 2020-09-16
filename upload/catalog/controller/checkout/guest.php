@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Checkout;
-class Guest extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Checkout;
+class Guest extends \Opencart\System\Engine\Controller {
 	public function index() {
 		$this->load->language('checkout/checkout');
 
@@ -175,7 +175,6 @@ class Guest extends \System\Engine\Controller {
 			}
 
 			if ((utf8_strlen($this->request->post['telephone']) < 3) || (utf8_strlen($this->request->post['telephone']) > 32)) {
-
 				$json['error']['telephone'] = $this->language->get('error_telephone');
 			}
 

@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Module;
-class Banner extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Module;
+class Banner extends \Opencart\System\Engine\Controller {
 	public function index($setting) {
 		static $module = 0;
 
@@ -27,6 +27,6 @@ class Banner extends \System\Engine\Controller {
 
 		$data['module'] = $module++;
 
-		return $this->load->view('extension/module/banner', $data);
+		return $this->load->view('extension/opencart/module/banner', $data);
 	}
 }

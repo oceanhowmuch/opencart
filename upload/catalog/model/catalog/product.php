@@ -1,6 +1,6 @@
 <?php
-namespace Application\Model\Catalog;
-class Product extends \System\Engine\Model {
+namespace Opencart\Application\Model\Catalog;
+class Product extends \Opencart\System\Engine\Model {
 	public function updateViewed($product_id) {
 		$this->db->query("UPDATE " . DB_PREFIX . "product SET viewed = (viewed + 1) WHERE product_id = '" . (int)$product_id . "'");
 	}
@@ -168,7 +168,7 @@ class Product extends \System\Engine\Model {
 
 		foreach ($query->rows as $result) {
 			// for never get one more time with same product id
-			if (!isset($product_data[$result['product_id']])){
+			if (!isset($product_data[$result['product_id']])) {
 				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
 			}
 		}

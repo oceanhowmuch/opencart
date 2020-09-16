@@ -10,7 +10,7 @@
 /**
 * Image class
 */
-namespace System\Library;
+namespace Opencart\System\Library;
 class Image {
 	private $file;
 	private $image;
@@ -48,7 +48,7 @@ class Image {
 				$this->image = imagecreatefromjpeg($file);
 			}
 		} else {
-			exit('Error: Could not load image ' . $file . '!');
+			error_log('Error: Could not load image ' . $file . '!');
 		}
 	}
 	

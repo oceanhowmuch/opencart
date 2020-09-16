@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Common;
-class ColumnLeft extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Common;
+class ColumnLeft extends \Opencart\System\Engine\Controller {
 	public function index() {
 		if (isset($this->request->get['user_token']) && isset($this->session->data['user_token']) && ((string)$this->request->get['user_token'] == $this->session->data['user_token'])) {
 			$this->load->language('common/column_left');
@@ -272,10 +272,10 @@ class ColumnLeft extends \System\Engine\Controller {
 				];
 			}
 
-			if ($this->user->hasPermission('access', 'sale/return')) {
+			if ($this->user->hasPermission('access', 'sale/returns')) {
 				$sale[] = [
 					'name'	   => $this->language->get('text_return'),
-					'href'     => $this->url->link('sale/return', 'user_token=' . $this->session->data['user_token']),
+					'href'     => $this->url->link('sale/returns', 'user_token=' . $this->session->data['user_token']),
 					'children' => []
 				];
 			}

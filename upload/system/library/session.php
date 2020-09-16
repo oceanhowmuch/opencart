@@ -10,7 +10,7 @@
 /**
 * Session class
 */
-namespace System\Library;
+namespace Opencart\System\Library;
 class Session {
 	protected $adaptor;
 	protected $session_id;
@@ -23,7 +23,7 @@ class Session {
 	 * @param	object	$registry
  	*/
 	public function __construct($adaptor, $registry = '') {
-		$class = '\System\Library\Session\\' . $adaptor;
+		$class = 'Opencart\System\Library\Session\\' . $adaptor;
 		
 		if (class_exists($class)) {
 			if ($registry) {
@@ -67,7 +67,7 @@ class Session {
 		if (preg_match('/^[a-zA-Z0-9,\-]{22,52}$/', $session_id)) {
 			$this->session_id = $session_id;
 		} else {
-			exit('Error: Invalid session ID!');
+			error_log('Error: Invalid session ID!');
 		}
 		
 		$this->data = $this->adaptor->read($session_id);

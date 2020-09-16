@@ -1,7 +1,12 @@
 <?php
-namespace System\Library\Template;
+namespace Opencart\System\Library\Template;
 class Template {
+	protected $path = [];
 	protected $data = [];
+
+	public function addPath($namespace, $directory) {
+		$this->path[$namespace] = $directory;
+	}
 
 	public function set($key, $value) {
 		$this->data[$key] = $value;
@@ -9,13 +14,26 @@ class Template {
 
 	public function render($filename, $code = '') {
 		if (!$code) {
-			$file = DIR_TEMPLATE . $filename . '.tpl';
+			$namespace = '';
 
-			if (is_file($file)) {
+			$parts = explode('\\', $filename);
+
+			foreach ($parts as $part) {
+				if (!$namespace) {
+					$namespace .= $part;
+				} else {
+					$namespace .= '\\' . $part;
+				}
+
+				if (isset($this->path[$namespace])) {
+					$file = $this->path[$namespace] . substr($filename, strlen($namespace)) . '.tpl';
+				}
+			}
+
+			if (isset($file) && is_file($file)) {
 				$code = file_get_contents($file);
 			} else {
-				throw new \Exception('Error: Could not load template ' . $file . '!');
-				exit();
+				error_log('Error: Could not load template ' . $filename . '!');
 			}
 		}
 

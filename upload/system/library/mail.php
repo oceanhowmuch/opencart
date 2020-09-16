@@ -10,7 +10,7 @@
 /**
 * Mail class
 */
-namespace System\Library;
+namespace Opencart\System\Library;
 class Mail {
 	protected $to;
 	protected $from;
@@ -28,7 +28,7 @@ class Mail {
 	 *
  	*/
 	public function __construct($adaptor = 'mail') {
-		$class = 'Mail\\' . $adaptor;
+		$class = 'Opencart\System\Library\Mail\\' . $adaptor;
 
 		if (class_exists($class)) {
 			$this->adaptor = new $class();
@@ -131,7 +131,7 @@ class Mail {
 			throw new \Exception('Error: E-Mail subject required!');
 		}
 
-		if ((!$this->text) && (!$this->html)) {
+		if (!$this->text && !$this->html) {
 			throw new \Exception('Error: E-Mail message required!');
 		}
 

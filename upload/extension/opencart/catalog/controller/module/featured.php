@@ -1,8 +1,8 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Module;
-class Featured extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Module;
+class Featured extends \Opencart\System\Engine\Controller {
 	public function index($setting) {
-		$this->load->language('extension/module/featured');
+		$this->load->language('extension/opencart/module/featured');
 
 		$this->load->model('catalog/product');
 
@@ -70,7 +70,7 @@ class Featured extends \System\Engine\Controller {
 		}
 
 		if ($data['products']) {
-			return $this->load->view('extension/module/featured', $data);
+			return $this->load->view('extension/opencart/module/featured', $data);
 		}
 	}
 }

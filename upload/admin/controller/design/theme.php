@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Design;
-class Theme extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Design;
+class Theme extends \Opencart\System\Engine\Controller {
 	public function index() {
 		$this->load->language('design/theme');
 
@@ -105,22 +105,17 @@ class Theme extends \System\Engine\Controller {
 
 		$theme = $this->model_setting_setting->getValue('config_theme', $store_id);
 
-		// This is only here for compatibility with old themes.
-		if ($theme == 'theme_default') {
-			$theme = $this->model_setting_setting->getValue('theme_default_directory', $store_id);
-		}
-
 		if (isset($this->request->get['path'])) {
 			$path = $this->request->get['path'];
 		} else {
 			$path = '';
 		}
 
-		if (substr(str_replace('\\', '/', realpath(DIR_CATALOG . 'view/theme/default/template/' . $path)), 0, strlen(DIR_CATALOG . 'view')) == DIR_CATALOG . 'view') {
+		if (substr(str_replace('\\', '/', realpath(DIR_CATALOG . 'view/template/' . $path)), 0, strlen(DIR_CATALOG . 'view')) == DIR_CATALOG . 'view') {
 			$path_data = [];
 
 			// We grab the files from the default theme directory first as the custom themes drops back to the default theme if selected theme files can not be found.
-			$files = glob(rtrim(DIR_CATALOG . 'view/theme/{default,' . $theme . '}/template/' . $path, '/') . '/*', GLOB_BRACE);
+			$files = glob(rtrim(DIR_CATALOG . 'view/template/' . $path, '/') . '/*', GLOB_BRACE);
 
 			if ($files) {
 				foreach ($files as $file) {
@@ -145,11 +140,29 @@ class Theme extends \System\Engine\Controller {
 			}
 		}
 
-		if (!empty($this->request->get['path'])) {
-			$json['back'] = [
-				'name' => $this->language->get('button_back'),
-				'path' => urlencode(substr($path, 0, strrpos($path, '/'))),
-			];
+		$json['extension'] = [];
+
+		// Extension theme editing
+		$this->load->model('setting/extension');
+
+		$results = $this->model_setting_extension->getPaths('%/catalog/view/template/%');
+
+		//if (substr(str_replace('\\', '/', realpath(DIR_CATALOG . 'view/template/' . $path)), 0, strlen(DIR_CATALOG . 'view')) == DIR_CATALOG . 'view') {
+
+		foreach ($results as $result) {
+			if (substr($result['path'], -1) == '/') {
+				$json['extension']['directory'][] = [
+					'name' => 'extension/' . basename($result['path']),
+					'path' => trim($path . '/' . basename($result['path']), '/')
+				];
+			}
+
+			if (substr($result['path'], -5) == '.twig') {
+				$json['extension']['file'][] = [
+					'name' => basename($result['path']),
+					'path' => trim($result['path'] . '/' . basename($result['path']), '/')
+				];
+			}
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
@@ -167,17 +180,6 @@ class Theme extends \System\Engine\Controller {
 			$store_id = 0;
 		}
 
-		$this->load->model('setting/setting');
-
-		$theme = $this->model_setting_setting->getValue('config_theme', $store_id);
-
-		// This is only here for compatibility with old themes.
-		if ($theme == 'theme_default') {
-			$theme = $this->model_setting_setting->getValue('theme_default_directory', $store_id);
-		} else {
-			$theme = 'default';
-		}
-
 		if (isset($this->request->get['path'])) {
 			$path = $this->request->get['path'];
 		} else {
@@ -186,12 +188,12 @@ class Theme extends \System\Engine\Controller {
 
 		$this->load->model('design/theme');
 
-		$theme_info = $this->model_design_theme->getTheme($store_id, $theme, $path);
+		$theme_info = $this->model_design_theme->getTheme($store_id, $path);
 
 		if ($theme_info) {
 			$json['code'] = html_entity_decode($theme_info['code']);
-		} elseif (is_file(DIR_CATALOG . 'view/theme/' . $theme . '/template/' . $path) && (substr(str_replace('\\', '/', realpath(DIR_CATALOG . 'view/theme/' . $theme . '/template/' . $path)), 0, strlen(DIR_CATALOG . 'view')) == DIR_CATALOG . 'view')) {
-			$json['code'] = file_get_contents(DIR_CATALOG . 'view/theme/' . $theme . '/template/' . $path);
+		} elseif (is_file(DIR_CATALOG . 'view/template/' . $path) && (substr(str_replace('\\', '/', realpath(DIR_CATALOG . 'view/template/' . $path)), 0, strlen(DIR_CATALOG . 'view')) == DIR_CATALOG . 'view')) {
+			$json['code'] = file_get_contents(DIR_CATALOG . 'view/template/' . $path);
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
@@ -207,15 +209,6 @@ class Theme extends \System\Engine\Controller {
 			$store_id = $this->request->get['store_id'];
 		} else {
 			$store_id = 0;
-		}
-
-		$this->load->model('setting/setting');
-
-		$theme = $this->model_setting_setting->getValue('config_theme', $store_id);
-
-		// This is only here for compatibility with old themes.
-		if ($theme == 'theme_default') {
-			$theme = $this->model_setting_setting->getValue('theme_default_directory', $store_id);
 		}
 
 		if (isset($this->request->get['path'])) {
@@ -238,7 +231,7 @@ class Theme extends \System\Engine\Controller {
 
 			$pos = strpos($path, '.');
 
-			$this->model_design_theme->editTheme($store_id, $theme, ($pos !== false) ? substr($path, 0, $pos) : $path, $this->request->post['code']);
+			$this->model_design_theme->editTheme($store_id, ($pos !== false) ? substr($path, 0, $pos) : $path, $this->request->post['code']);
 
 			$json['success'] = $this->language->get('text_success');
 		}
@@ -260,21 +253,14 @@ class Theme extends \System\Engine\Controller {
 
 		$this->load->model('setting/setting');
 
-		$theme = $this->model_setting_setting->getValue('config_theme', $store_id);
-
-		// This is only here for compatibility with old themes.
-		if ($theme == 'theme_default') {
-			$theme = $this->model_setting_setting->getValue('theme_default_directory', $store_id);
-		}
-
 		if (isset($this->request->get['path'])) {
 			$path = $this->request->get['path'];
 		} else {
 			$path = '';
 		}
 
-		if (is_file(DIR_CATALOG . 'view/theme/' . $theme . '/template/' . $path) && (substr(str_replace('\\', '/', realpath(DIR_CATALOG . 'view/theme/' . $theme . '/template/' . $path)), 0, strlen(DIR_CATALOG . 'view')) == DIR_CATALOG . 'view')) {
-			$json['code'] = file_get_contents(DIR_CATALOG . 'view/theme/' . $theme . '/template/' . $path);
+		if (is_file(DIR_CATALOG . 'view/template/' . $path) && (substr(str_replace('\\', '/', realpath(DIR_CATALOG . 'view/template/' . $path)), 0, strlen(DIR_CATALOG . 'view')) == DIR_CATALOG . 'view')) {
+			$json['code'] = file_get_contents(DIR_CATALOG . 'view/template/' . $path);
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

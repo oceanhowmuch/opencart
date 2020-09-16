@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Module;
-class Carousel extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Module;
+class Carousel extends \Opencart\System\Engine\Controller {
 	public function index($setting) {
 		static $module = 0;
 
@@ -27,6 +27,6 @@ class Carousel extends \System\Engine\Controller {
 
 		$data['module'] = $module++;
 
-		return $this->load->view('extension/module/carousel', $data);
+		return $this->load->view('extension/opencart/module/carousel', $data);
 	}
 }

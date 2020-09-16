@@ -1,24 +1,22 @@
 <?php
-namespace System\Library\Template;
+namespace Opencart\System\Library\Template;
 class Twig {
+	protected $loader;
 	protected $data = [];
+
+	public function __construct() {
+		$this->loader = new \Twig\Loader\FilesystemLoader();
+	}
+
+	public function addPath($extension, $directory) {
+		$this->loader->addPath($directory);
+	}
 
 	public function set($key, $value) {
 		$this->data[$key] = $value;
 	}
 
 	public function render($filename, $code = '') {
-		if (!$code) {
-			$file = DIR_TEMPLATE . $filename . '.twig';
-
-			if (is_file($file)) {
-				$code = file_get_contents($file);
-			} else {
-				throw new \Exception('Error: Could not load template ' . $file . '!');
-				exit();
-			}
-		}
-
 		/*
 		 * FYI all the Twig lovers out there!
 		 * The Twig syntax is good, but the implementation and the available methods is a joke!
@@ -30,26 +28,37 @@ class Twig {
 		 */
 
 		// render from modified template code
+		// Initialize Twig environment
+		$config = [
+			'charset'     => 'utf-8',
+			'autoescape'  => false,
+			'debug'       => false,
+			'auto_reload' => true,
+			'cache'       => DIR_CACHE . 'template/'
+		];
+
 		if ($code) {
-			// Initialize Twig environment
-			$config = [
-				'charset'     => 'utf-8',
-				'autoescape'  => false,
-				'debug'       => false,
-				'auto_reload' => true,
-				'cache'       => DIR_CACHE . 'template/'
-			];
-
 			$loader = new \Twig\Loader\ArrayLoader([$filename . '.twig' => $code]);
+		} else {
+			$loader = $this->loader;
+		}
 
-			try {
-				$twig = new \Twig\Environment($loader, $config);
+		if (substr($filename, 0, 19) == 'extension/opencart/') {
+			$filename = substr($filename, 19);
+		}
 
-				return $twig->render($filename . '.twig', $this->data);
-			} catch (Twig_Error_Syntax $e) {
-				trigger_error('Error: Could not load template ' . $filename . '!');
-				exit();
-			}
+		if (substr($filename, 0, 9) == 'extension') {
+			//$filename = substr($filename, 19);
+		}
+
+		try {
+			$twig = new \Twig\Environment($loader, $config);
+
+			return $twig->render($filename . '.twig', $this->data);
+		} catch (Twig_Error_Syntax $e) {
+			error_log('Error: Could not load template ' . $filename . '!');
+			exit();
 		}
 	}
+
 }

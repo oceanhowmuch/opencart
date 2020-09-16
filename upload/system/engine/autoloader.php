@@ -1,4 +1,5 @@
 <?php
+namespace Opencart\System\Engine;
 class Autoloader {
 	private $path = array();
 
@@ -24,7 +25,7 @@ class Autoloader {
 			}
 
 			if (isset($this->path[$namespace])) {
-				$file = $this->path[$namespace] . strtolower(preg_replace('~([a-z])([A-Z]|[0-9])~', '\\1_\\2', substr($class, strlen($namespace)))) . '.php';
+				$file = $this->path[$namespace] . trim(str_replace('\\', '/', strtolower(preg_replace('~([a-z])([A-Z]|[0-9])~', '\\1_\\2', substr($class, strlen($namespace))))), '/') . '.php';
 			}
 		}
 
@@ -33,6 +34,8 @@ class Autoloader {
 
 			return true;
 		} else {
+
+
 			return false;
 		}
 	}

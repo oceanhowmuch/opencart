@@ -10,8 +10,8 @@
 /**
 * Encryption class
 */
-namespace System\Library;
-final class Encryption {
+namespace Opencart\System\Library;
+class Encryption {
 	private $cipher = 'aes-256-ctr';
 	private $digest = 'sha256';
 	

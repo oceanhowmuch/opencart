@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\User;
-class UserPermission extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\User;
+class UserPermission extends \Opencart\System\Engine\Controller {
 	private $error = [];
 
 	public function index() {
@@ -304,6 +304,7 @@ class UserPermission extends \System\Engine\Controller {
 			$data['name'] = '';
 		}
 
+		// Routes to ignore
 		$ignore = [
 			'common/dashboard',
 			'common/startup',
@@ -316,8 +317,6 @@ class UserPermission extends \System\Engine\Controller {
 			'error/not_found',
 			'error/permission'
 		];
-
-		$data['permissions'] = [];
 
 		$files = [];
 
@@ -343,7 +342,9 @@ class UserPermission extends \System\Engine\Controller {
 
 		// Sort the file array
 		sort($files);
-					
+
+		$data['permissions'] = [];
+
 		foreach ($files as $file) {
 			$controller = substr($file, strlen(DIR_APPLICATION . 'controller/'));
 
@@ -352,6 +353,17 @@ class UserPermission extends \System\Engine\Controller {
 			if (!in_array($permission, $ignore)) {
 				$data['permissions'][] = $permission;
 			}
+		}
+
+		$data['extensions'] = [];
+
+		// Extension permissions
+		$this->load->model('setting/extension');
+
+		$results = $this->model_setting_extension->getPaths('%/admin/controller/%.php');
+
+		foreach ($results as $result) {
+			$data['extensions'][] = 'extension/' . str_replace('admin/controller/', '', substr($result['path'], 0, strrpos($result['path'], '.')));
 		}
 
 		if (isset($this->request->post['permission']['access'])) {

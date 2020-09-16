@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Module;
-class Slideshow extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Module;
+class Slideshow extends \Opencart\System\Engine\Controller {
 	public function index($setting) {
 		static $module = 0;
 
@@ -27,6 +27,6 @@ class Slideshow extends \System\Engine\Controller {
 
 		$data['module'] = $module++;
 
-		return $this->load->view('extension/module/slideshow', $data);
+		return $this->load->view('extension/opencart/module/slideshow', $data);
 	}
 }

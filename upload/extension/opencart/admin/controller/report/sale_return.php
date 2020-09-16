@@ -1,8 +1,8 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Report;
-class SaleReturn extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Report;
+class SaleReturn extends \Opencart\System\Engine\Controller {
 	public function index() {
-		$this->load->language('extension/report/sale_return');
+		$this->load->language('extension/opencart/report/sale_return');
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
@@ -36,10 +36,10 @@ class SaleReturn extends \System\Engine\Controller {
 
 		$data['breadcrumbs'][] = [
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('extension/report/sale_return', 'user_token=' . $this->session->data['user_token'])
+			'href' => $this->url->link('extension/opencart/report/sale_return', 'user_token=' . $this->session->data['user_token'])
 		];
 
-		$data['action'] = $this->url->link('extension/report/sale_return', 'user_token=' . $this->session->data['user_token']);
+		$data['action'] = $this->url->link('extension/opencart/report/sale_return', 'user_token=' . $this->session->data['user_token']);
 
 		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=report');
 
@@ -59,11 +59,11 @@ class SaleReturn extends \System\Engine\Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('extension/report/sale_return_form', $data));
+		$this->response->setOutput($this->load->view('extension/opencart/report/sale_return_form', $data));
 	}
 	
 	protected function validate() {
-		if (!$this->user->hasPermission('modify', 'extension/report/sale_return')) {
+		if (!$this->user->hasPermission('modify', 'extension/opencart/report/sale_return')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
@@ -71,7 +71,7 @@ class SaleReturn extends \System\Engine\Controller {
 	}
 	
 	public function report() {
-		$this->load->language('extension/report/sale_return');
+		$this->load->language('extension/opencart/report/sale_return');
 
 		if (isset($this->request->get['filter_date_start'])) {
 			$filter_date_start = $this->request->get['filter_date_start'];
@@ -103,7 +103,7 @@ class SaleReturn extends \System\Engine\Controller {
 			$page = 1;
 		}
 		
-		$this->load->model('extension/report/return');
+		$this->load->model('extension/opencart/report/returns');
 
 		$data['returns'] = [];
 
@@ -116,9 +116,9 @@ class SaleReturn extends \System\Engine\Controller {
 			'limit'                   => $this->config->get('config_pagination')
 		];
 
-		$return_total = $this->model_extension_report_return->getTotalReturns($filter_data);
+		$return_total = $this->model_extension_opencart_report_returns->getTotalReturns($filter_data);
 
-		$results = $this->model_extension_report_return->getReturns($filter_data);
+		$results = $this->model_extension_opencart_report_returns->getReturns($filter_data);
 
 		foreach ($results as $result) {
 			$data['returns'][] = [
@@ -178,7 +178,7 @@ class SaleReturn extends \System\Engine\Controller {
 			'total' => $return_total,
 			'page'  => $page,
 			'limit' => $this->config->get('config_pagination'),
-			'url'   => $this->url->link('report/report', 'user_token=' . $this->session->data['user_token'] . '&code=sale_return' . $url . '&page={page}')
+			'url'   => $this->url->link('extension/opencart/report/sale_return/report', 'user_token=' . $this->session->data['user_token'] . '&code=sale_return' . $url . '&page={page}')
 		]);
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($return_total) ? (($page - 1) * $this->config->get('config_pagination')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination')) > ($return_total - $this->config->get('config_pagination'))) ? $return_total : ((($page - 1) * $this->config->get('config_pagination')) + $this->config->get('config_pagination')), $return_total, ceil($return_total / $this->config->get('config_pagination')));
@@ -187,7 +187,7 @@ class SaleReturn extends \System\Engine\Controller {
 		$data['filter_date_end'] = $filter_date_end;
 		$data['filter_group'] = $filter_group;
 		$data['filter_return_status_id'] = $filter_return_status_id;
-		
-		return $this->load->view('extension/report/sale_return_info', $data);
+
+		$this->response->setOutput($this->load->view('extension/opencart/report/sale_return', $data));
 	}
 }

@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Checkout;
-class Cart extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Checkout;
+class Cart extends \Opencart\System\Engine\Controller {
 	public function index() {
 		$this->load->language('checkout/cart');
 
@@ -182,10 +182,10 @@ class Cart extends \System\Engine\Controller {
 
 				foreach ($results as $result) {
 					if ($this->config->get('total_' . $result['code'] . '_status')) {
-						$this->load->model('extension/total/' . $result['code']);
+						$this->load->model('extension/' . $result['extension'] . '/total/' . $result['code']);
 
 						// __call can not pass-by-reference so we get PHP to call it as an anonymous function.
-						($this->{'model_extension_total_' . $result['code']}->getTotal)($totals, $taxes, $total);
+						($this->{'model_extension_' . $result['extension'] . '_total_' . $result['code']}->getTotal)($totals, $taxes, $total);
 					}
 				}
 
@@ -213,15 +213,11 @@ class Cart extends \System\Engine\Controller {
 
 			$data['modules'] = [];
 
-			$files = glob(DIR_APPLICATION . '/controller/extension/total/*.php');
+			foreach ($results as $result) {
+				$result = $this->load->controller('extension/' . $result['extension'] . '/total/' . $result['code']);
 
-			if ($files) {
-				foreach ($files as $file) {
-					$result = $this->load->controller('extension/total/' . basename($file, '.php'));
-
-					if ($result) {
-						$data['modules'][] = $result;
-					}
+				if ($result) {
+					$data['modules'][] = $result;
 				}
 			}
 

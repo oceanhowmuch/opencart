@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Extension;
-class Theme extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension;
+class Theme extends \Opencart\System\Engine\Controller {
 	private $error = [];
 
 	public function index() {
@@ -17,15 +17,15 @@ class Theme extends \System\Engine\Controller {
 		$this->load->model('setting/extension');
 
 		if ($this->validate()) {
-			$this->model_setting_extension->install('theme', $this->request->get['extension']);
+			$this->model_setting_extension->install('theme', $this->request->get['extension'], $this->request->get['code']);
 
 			$this->load->model('user/user_group');
 
-			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/theme/' . $this->request->get['extension']);
-			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/theme/' . $this->request->get['extension']);
+			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', 'extension/' . $this->request->get['extension'] . '/theme/' . $this->request->get['code']);
+			$this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', 'extension/' . $this->request->get['extension'] . '/theme/' . $this->request->get['code']);
 
-			// Call install method if it exsits
-			$this->load->controller('extension/theme/' . $this->request->get['extension'] . '/install');
+			// Call install method if it exists
+			$this->load->controller('extension/' . $this->request->get['extension'] . '/theme/' . $this->request->get['code'] . '/install');
 
 			$this->session->data['success'] = $this->language->get('text_success');
 		}
@@ -39,10 +39,10 @@ class Theme extends \System\Engine\Controller {
 		$this->load->model('setting/extension');
 
 		if ($this->validate()) {
-			$this->model_setting_extension->uninstall('theme', $this->request->get['extension']);
+			$this->model_setting_extension->uninstall('theme', $this->request->get['code']);
 
-			// Call uninstall method if it exsits
-			$this->load->controller('extension/theme/' . $this->request->get['extension'] . '/uninstall');
+			// Call uninstall method if it exists
+			$this->load->controller('extension/' . $this->request->get['extension'] . '/theme/' . $this->request->get['code'] . '/uninstall');
 
 			$this->session->data['success'] = $this->language->get('text_success');
 		}
@@ -65,13 +65,23 @@ class Theme extends \System\Engine\Controller {
 			$data['success'] = '';
 		}
 
-		$extensions = $this->model_setting_extension->getInstalled('theme');
+		$available = [];
 
-		foreach ($extensions as $key => $value) {
-			if (!is_file(DIR_APPLICATION . 'controller/extension/theme/' . $value . '.php') && !is_file(DIR_APPLICATION . 'controller/theme/' . $value . '.php')) {
-				$this->model_setting_extension->uninstall('theme', $value);
+		$results = $this->model_setting_extension->getPaths('%/admin/controller/theme/%.php');
 
-				unset($extensions[$key]);
+		foreach ($results as $result) {
+			$available[] = basename($result['path'], '.php');
+		}
+
+		$installed = [];
+
+		$extensions = $this->model_setting_extension->getExtensionsByType('theme');
+
+		foreach ($extensions as $extension) {
+			if (in_array($extension['code'], $available)) {
+				$installed[] = $extension['code'];
+			} else {
+				$this->model_setting_extension->uninstall('theme', $extension['code']);
 			}
 		}
 
@@ -81,37 +91,36 @@ class Theme extends \System\Engine\Controller {
 		$stores = $this->model_setting_store->getStores();
 
 		$data['extensions'] = [];
-		
-		// Compatibility code for old extension folders
-		$files = glob(DIR_APPLICATION . 'controller/extension/theme/*.php');
 
-		if ($files) {
-			foreach ($files as $file) {
-				$extension = basename($file, '.php');
-				
-				$this->load->language('extension/theme/' . $extension, $extension);
-					
+		if ($results) {
+			foreach ($results as $result) {
+				$extension = substr($result['path'], 0, strpos($result['path'], '/'));
+
+				$code = basename($result['path'], '.php');
+
+				$this->load->language('extension/' . $extension . '/theme/' . $code, $code);
+
 				$store_data = [];
-				
+
 				$store_data[] = [
 					'name'   => $this->config->get('config_name'),
-					'edit'   => $this->url->link('extension/theme/' . $extension, 'user_token=' . $this->session->data['user_token'] . '&store_id=0'),
-					'status' => $this->config->get('theme_' . $extension . '_status') ? $this->language->get('text_enabled') : $this->language->get('text_disabled')
+					'edit'   => $this->url->link('extension/' . $extension . '/theme/' . $code, 'user_token=' . $this->session->data['user_token'] . '&store_id=0'),
+					'status' => $this->config->get('theme_' . $code . '_status') ? $this->language->get('text_enabled') : $this->language->get('text_disabled')
 				];
-									
+
 				foreach ($stores as $store) {
 					$store_data[] = [
 						'name'   => $store['name'],
-						'edit'   => $this->url->link('extension/theme/' . $extension, 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $store['store_id']),
-						'status' => $this->model_setting_setting->getValue('theme_' . $extension . '_status', $store['store_id']) ? $this->language->get('text_enabled') : $this->language->get('text_disabled')
+						'edit'   => $this->url->link('extension/' . $extension . '/theme/' . $code, 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $store['store_id']),
+						'status' => $this->model_setting_setting->getValue('theme_' . $code . '_status', $store['store_id']) ? $this->language->get('text_enabled') : $this->language->get('text_disabled')
 					];
 				}
-				
+
 				$data['extensions'][] = [
-					'name'      => $this->language->get($extension . '_heading_title'),
-					'install'   => $this->url->link('extension/theme/install', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension),
-					'uninstall' => $this->url->link('extension/theme/uninstall', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension),
-					'installed' => in_array($extension, $extensions),
+					'name'      => $this->language->get($code . '_heading_title'),
+					'install'   => $this->url->link('extension/theme/install', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension . '&code=' . $code),
+					'uninstall' => $this->url->link('extension/theme/uninstall', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension . '&code=' . $code),
+					'installed' => in_array($code, $installed),
 					'store'     => $store_data
 				];
 			}

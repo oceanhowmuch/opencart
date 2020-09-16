@@ -1,6 +1,6 @@
 <?php
-namespace System\Library\Cart;
-final class Tax {
+namespace Opencart\System\Library\Cart;
+class Tax {
 	private $tax_rates = [];
 
 	public function __construct($registry) {

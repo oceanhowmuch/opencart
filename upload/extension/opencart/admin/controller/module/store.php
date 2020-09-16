@@ -1,10 +1,10 @@
 <?php
-namespace Extension\OpenCart\Catalog\Controller\Module;
-class Store extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Module;
+class Store extends \Opencart\System\Engine\Controller {
 	private $error = [];
 
 	public function index() {
-		$this->load->language('extension/module/store');
+		$this->load->language('extension/opencart/module/store');
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
@@ -38,10 +38,10 @@ class Store extends \System\Engine\Controller {
 
 		$data['breadcrumbs'][] = [
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('extension/module/store', 'user_token=' . $this->session->data['user_token'])
+			'href' => $this->url->link('extension/opencart/module/store', 'user_token=' . $this->session->data['user_token'])
 		];
 
-		$data['action'] = $this->url->link('extension/module/store', 'user_token=' . $this->session->data['user_token']);
+		$data['action'] = $this->url->link('extension/opencart/module/store', 'user_token=' . $this->session->data['user_token']);
 
 		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module');
 
@@ -61,11 +61,11 @@ class Store extends \System\Engine\Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('extension/module/store', $data));
+		$this->response->setOutput($this->load->view('extension/opencart/module/store', $data));
 	}
 
 	protected function validate() {
-		if (!$this->user->hasPermission('modify', 'extension/module/store')) {
+		if (!$this->user->hasPermission('modify', 'extension/opencart/module/store')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 

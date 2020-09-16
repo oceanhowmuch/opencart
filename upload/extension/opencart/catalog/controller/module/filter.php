@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Module;
-class Filter extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Module;
+class Filter extends \Opencart\System\Engine\Controller {
 	public function index() {
 		if (isset($this->request->get['path'])) {
 			$parts = explode('_', (string)$this->request->get['path']);
@@ -15,7 +15,7 @@ class Filter extends \System\Engine\Controller {
 		$category_info = $this->model_catalog_category->getCategory($category_id);
 
 		if ($category_info) {
-			$this->load->language('extension/module/filter');
+			$this->load->language('extension/opencart/module/filter');
 
 			$url = '';
 
@@ -68,7 +68,7 @@ class Filter extends \System\Engine\Controller {
 					];
 				}
 
-				return $this->load->view('extension/module/filter', $data);
+				return $this->load->view('extension/opencart/module/filter', $data);
 			}
 		}
 	}

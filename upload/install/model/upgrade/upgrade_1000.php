@@ -1,7 +1,12 @@
 <?php
-namespace Application\Model\Upgrade;
-class Upgrade1000 extends \System\Engine\Model {
+namespace Install\Model\upgrade;
+class Upgrade1000 extends \Opencart\System\Engine\Model {
 	public function upgrade() {
+		// This is a generic upgrade script.
+		// It makes mass changes to the DB by creating tables that are not in the current db, changes the charset and DB engine to the SQL schema.
+		// The upgrade script is not coherent because of the changes over time to the upgrades so im grouping the changes into different files
+		// Future version should have a upgrade filename that matches the version number being changed to
+
 		// Structure
 		$this->load->helper('db_schema');
 
@@ -102,6 +107,12 @@ class Upgrade1000 extends \System\Engine\Model {
 					}
 
 					$this->db->query("ALTER TABLE `" . DB_PREFIX . $table['name'] . "` ADD PRIMARY KEY(" . implode(",", $primary_data) . ")");
+				}
+
+				for ($i = 0; $i < count($table['field']); $i++) {
+					if (isset($table['field'][$i]['auto_increment'])) {
+						$this->db->query("ALTER TABLE `" . DB_PREFIX . $table['name'] . "` MODIFY `" . $table['field'][$i]['name'] . "` " . $table['field'][$i]['type'] . " AUTO_INCREMENT");
+					}
 				}
 
 				// Indexes

@@ -1,6 +1,6 @@
 <?php
 namespace Install\Model\Upgrade;
-class Upgrade1010 extends \System\Engine\Model {
+class Upgrade1010 extends \Opencart\System\Engine\Model {
 	public function upgrade() {
 		// Add missing core events
 		$events = [];
@@ -122,7 +122,7 @@ class Upgrade1010 extends \System\Engine\Model {
 		$events[] = [
 			'code'    => 'mail_voucher',
 			'trigger' => 'catalog/model/checkout/order/addHistory/after',
-			'action'  => 'extension/total/voucher/send'
+			'action'  => 'extension/opencart/voucher/send'
 		];
 
 		$events[] = [

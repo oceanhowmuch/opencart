@@ -1,17 +1,17 @@
 <?php
-namespace Application\Controller\Extension\Opencart\Module;
-class Store extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Extension\Opencart\Module;
+class Store extends \Opencart\System\Engine\Controller {
 	public function index() {
 		$status = true;
 
 		if ($this->config->get('module_store_admin')) {
-			$this->user = new \System\library\Cart\User($this->registry);
+			$this->user = new \Opencart\System\library\Cart\User($this->registry);
 
 			$status = $this->user->isLogged();
 		}
 
 		if ($status) {
-			$this->load->language('extension/module/store');
+			$this->load->language('extension/opencart/module/store');
 
 			$data['store_id'] = $this->config->get('config_store_id');
 
@@ -35,7 +35,7 @@ class Store extends \System\Engine\Controller {
 				];
 			}
 
-			return $this->load->view('extension/module/store', $data);
+			return $this->load->view('extension/opencart/module/store', $data);
 		}
 	}
 }

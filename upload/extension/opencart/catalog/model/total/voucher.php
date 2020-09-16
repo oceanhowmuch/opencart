@@ -1,8 +1,8 @@
 <?php
-namespace Application\Model\Extension\Opencart\Total;
-class Voucher extends \System\Engine\Model {
+namespace Opencart\Application\Model\Extension\Opencart\Total;
+class Voucher extends \Opencart\System\Engine\Model {
 	public function addVoucher($order_id, $data) {
-		$this->db->query("INSERT INTO " . DB_PREFIX . "voucher SET order_id = '" . (int)$order_id . "', code = '" . $this->db->escape((string)$data['code']) . "', from_name = '" . $this->db->escape((string)$data['from_name']) . "', from_email = '" . $this->db->escape((string)$data['from_email']) . "', to_name = '" . $this->db->escape((string)$data['to_name']) . "', to_email = '" . $this->db->escape((string)$data['to_email']) . "', voucher_theme_id = '" . (int)$data['voucher_theme_id'] . "', message = '" . $this->db->escape((string)$data['message']) . "', amount = '" . (float)$data['amount'] . "', status = '1', date_added = NOW()");
+		$this->db->query("INSERT INTO " . DB_PREFIX . "voucher SET order_id = '" . (int)$order_id . "', code = '" . $this->db->escape((string)$data['code']) . "', from_name = '" . $this->db->escape((string)$data['from_name']) . "', `from_email` = '" . $this->db->escape((string)$data['from_email']) . "', `to_name` = '" . $this->db->escape((string)$data['to_name']) . "', `to_email` = '" . $this->db->escape((string)$data['to_email']) . "', `voucher_theme_id` = '" . (int)$data['voucher_theme_id'] . "', `message` = '" . $this->db->escape((string)$data['message']) . "', `amount` = '" . (float)$data['amount'] . "', `status` = '1', `date_added` = NOW()");
 
 		return $this->db->getLastId();
 	}
@@ -14,7 +14,7 @@ class Voucher extends \System\Engine\Model {
 	public function getVoucher($code) {
 		$status = true;
 
-		$voucher_query = $this->db->query("SELECT *, vtd.name AS theme FROM " . DB_PREFIX . "voucher v LEFT JOIN " . DB_PREFIX . "voucher_theme vt ON (v.voucher_theme_id = vt.voucher_theme_id) LEFT JOIN " . DB_PREFIX . "voucher_theme_description vtd ON (vt.voucher_theme_id = vtd.voucher_theme_id) WHERE v.code = '" . $this->db->escape($code) . "' AND vtd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND v.status = '1'");
+		$voucher_query = $this->db->query("SELECT *, vtd.name AS theme FROM `" . DB_PREFIX . "voucher` v LEFT JOIN `" . DB_PREFIX . "voucher_theme` vt ON (v.voucher_theme_id = vt.voucher_theme_id) LEFT JOIN " . DB_PREFIX . "`voucher_theme_description` vtd ON (vt.`voucher_theme_id` = vtd.`voucher_theme_id`) WHERE v.`code` = '" . $this->db->escape($code) . "' AND vtd.`language_id` = '" . (int)$this->config->get('config_language_id') . "' AND v.`status` = '1'");
 
 		if ($voucher_query->num_rows) {
 			if ($voucher_query->row['order_id']) {
@@ -73,13 +73,13 @@ class Voucher extends \System\Engine\Model {
 
 	public function getTotal(&$totals, &$taxes, &$total) {
 		if (isset($this->session->data['voucher'])) {
-			$this->load->language('extension/total/voucher', 'voucher');
+			$this->load->language('extension/opencart/total/voucher', 'voucher');
 
 			$voucher_info = $this->getVoucher($this->session->data['voucher']);
 
 			if ($voucher_info) {
 				$amount = min($voucher_info['amount'], $total);
-				
+
 				if ($amount > 0) {
 					$totals[] = [
 						'code'       => 'voucher',

@@ -1,6 +1,6 @@
 <?php
-namespace Application\Controller\Sale;
-class Order extends \System\Engine\Controller {
+namespace Opencart\Application\Controller\Sale;
+class Order extends \Opencart\System\Engine\Controller {
 	private $error = [];
 
 	public function index() {
@@ -208,17 +208,17 @@ class Order extends \System\Engine\Controller {
 		$data['orders'] = [];
 
 		$filter_data = [
-			'filter_order_id' => $filter_order_id,
-			'filter_customer' => $filter_customer,
-			'filter_order_status' => $filter_order_status,
+			'filter_order_id'        => $filter_order_id,
+			'filter_customer'        => $filter_customer,
+			'filter_order_status'    => $filter_order_status,
 			'filter_order_status_id' => $filter_order_status_id,
-			'filter_total' => $filter_total,
-			'filter_date_added' => $filter_date_added,
-			'filter_date_modified' => $filter_date_modified,
-			'sort' => $sort,
-			'order' => $order,
-			'start' => ($page - 1) * $this->config->get('config_pagination'),
-			'limit' => $this->config->get('config_pagination')
+			'filter_total'           => $filter_total,
+			'filter_date_added'      => $filter_date_added,
+			'filter_date_modified'   => $filter_date_modified,
+			'sort'                   => $sort,
+			'order'                  => $order,
+			'start'                  => ($page - 1) * $this->config->get('config_pagination'),
+			'limit'                  => $this->config->get('config_pagination')
 		];
 
 		$order_total = $this->model_sale_order->getTotalOrders($filter_data);
@@ -227,15 +227,15 @@ class Order extends \System\Engine\Controller {
 
 		foreach ($results as $result) {
 			$data['orders'][] = [
-				'order_id' => $result['order_id'],
-				'customer' => $result['customer'],
-				'order_status' => $result['order_status'] ? $result['order_status'] : $this->language->get('text_missing'),
-				'total' => $this->currency->format($result['total'], $result['currency_code'], $result['currency_value']),
-				'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
+				'order_id'      => $result['order_id'],
+				'customer'      => $result['customer'],
+				'order_status'  => $result['order_status'] ? $result['order_status'] : $this->language->get('text_missing'),
+				'total'         => $this->currency->format($result['total'], $result['currency_code'], $result['currency_value']),
+				'date_added'    => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 				'date_modified' => date($this->language->get('date_format_short'), strtotime($result['date_modified'])),
 				'shipping_code' => $result['shipping_code'],
-				'view' => $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $result['order_id'] . $url),
-				'edit' => $this->url->link('sale/order/edit', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $result['order_id'] . $url)
+				'view'          => $this->url->link('sale/order/info', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $result['order_id'] . $url),
+				'edit'          => $this->url->link('sale/order/edit', 'user_token=' . $this->session->data['user_token'] . '&order_id=' . $result['order_id'] . $url)
 			];
 		}
 
@@ -379,7 +379,7 @@ class Order extends \System\Engine\Controller {
 		$api_info = $this->model_user_api->getApi($this->config->get('config_api_id'));
 
 		if ($api_info && $this->user->hasPermission('modify', 'sale/order')) {
-			$session = new \System\Library\Session($this->config->get('session_engine'), $this->registry);
+			$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);
 
 			$session->start();
 
@@ -518,13 +518,13 @@ class Order extends \System\Engine\Controller {
 			foreach ($products as $product) {
 				$data['order_products'][] = [
 					'product_id' => $product['product_id'],
-					'name' => $product['name'],
-					'model' => $product['model'],
-					'option' => $this->model_sale_order->getOptions($this->request->get['order_id'], $product['order_product_id']),
-					'quantity' => $product['quantity'],
-					'price' => $product['price'],
-					'total' => $product['total'],
-					'reward' => $product['reward']
+					'name'       => $product['name'],
+					'model'      => $product['model'],
+					'option'     => $this->model_sale_order->getOptions($this->request->get['order_id'], $product['order_product_id']),
+					'quantity'   => $product['quantity'],
+					'price'      => $product['price'],
+					'total'      => $product['total'],
+					'reward'     => $product['reward']
 				];
 			}
 
@@ -689,7 +689,7 @@ class Order extends \System\Engine\Controller {
 		$api_info = $this->model_user_api->getApi($this->config->get('config_api_id'));
 
 		if ($api_info && $this->user->hasPermission('modify', 'sale/order')) {
-			$session = new \System\Library\Session($this->config->get('session_engine'), $this->registry);
+			$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);
 
 			$session->start();
 
@@ -1203,7 +1203,7 @@ class Order extends \System\Engine\Controller {
 
 			$this->load->model('setting/extension');
 
-			$extensions = $this->model_setting_extension->getInstalled('fraud');
+			$extensions = $this->model_setting_extension->getExtensionsByType('fraud');
 
 			foreach ($extensions as $extension) {
 				if ($this->config->get('fraud_' . $extension . '_status')) {
@@ -1230,7 +1230,7 @@ class Order extends \System\Engine\Controller {
 			$api_info = $this->model_user_api->getApi($this->config->get('config_api_id'));
 
 			if ($api_info && $this->user->hasPermission('modify', 'sale/order')) {
-				$session = new \System\Library\Session($this->config->get('session_engine'), $this->registry);
+				$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);
 
 				$session->start();
 
@@ -1251,7 +1251,7 @@ class Order extends \System\Engine\Controller {
 
 			$this->response->setOutput($this->load->view('sale/order_info', $data));
 		} else {
-			return new \System\Engine\Action('error/not_found');
+			return new \Opencart\System\Engine\Action('error/not_found');
 		}
 	}
 

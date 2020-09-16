@@ -2104,6 +2104,11 @@ function db_schema() {
 				'auto_increment' => true
 			],
 			[
+				'name' => 'extension',
+				'type' => 'varchar(255)',
+				'not_null' => true
+			],
+			[
 				'name' => 'type',
 				'type' => 'varchar(32)',
 				'not_null' => true
@@ -2157,11 +2162,6 @@ function db_schema() {
 				'not_null' => true
 			],
 			[
-				'name' => 'image',
-				'type' => 'varchar(128)',
-				'not_null' => true
-			],
-			[
 				'name' => 'author',
 				'type' => 'varchar(255)',
 				'not_null' => true
@@ -2212,6 +2212,14 @@ function db_schema() {
 		],
 		'primary' => [
 			'extension_path_id'
+		],
+		'index' => [
+			[
+				'name' => 'path',
+				'key' => [
+					'path'
+				]
+			]
 		],
 		'engine' => 'MyISAM',
 		'charset' => 'utf8',

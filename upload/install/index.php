@@ -33,4 +33,9 @@ define('DIR_UPLOAD', DIR_SYSTEM . 'storage/upload/');
 // Startup
 require_once(DIR_SYSTEM . 'startup.php');
 
-start('install');
+// Autoloader
+$autoloader = new \Opencart\System\Engine\Autoloader();
+$autoloader->register('Opencart\Application', DIR_APPLICATION);
+$autoloader->register('Opencart\System', DIR_SYSTEM);
+
+Opencart\start('install');
